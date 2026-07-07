@@ -1,4 +1,4 @@
-const API_KEY = "3a256d0bd10e9c8cb699bcaf99839958"; // Gunakan default api key atau key gratis TMDB
+const API_KEY = "19f84e11932abbc79e6d83f82d6d1045";
 
 const requests = {
   fetchTrending: `/trending/all/week?api_key=${API_KEY}&language=en-US`,
