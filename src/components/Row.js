@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "../axios";
 import "./Row.css";
-import YouTube from "react-youtube";
-import movieTrailer from "movie-trailer";
+import { useNavigate } from "react-router-dom";
 
 const base_url = "https://image.tmdb.org/t/p/original/";
 
 function Row({ title, fetchUrl, isLargeRow }) {
   const [movies, setMovies] = useState([]);
-  const [trailerUrl, setTrailerUrl] = useState("");
-  const [selectedMovie, setSelectedMovie] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
@@ -20,31 +18,10 @@ function Row({ title, fetchUrl, isLargeRow }) {
     fetchData();
   }, [fetchUrl]);
 
-  const opts = {
-    height: "390",
-    width: "100%",
-    playerVars: {
-      autoplay: 1,
-    },
-  };
-
   const handleClick = (movie) => {
-    setSelectedMovie(movie);
-    if (trailerUrl) {
-      setTrailerUrl("");
-    } else {
-      movieTrailer(movie?.name || movie?.title || movie?.original_name || "")
-        .then((url) => {
-          const urlParams = new URLSearchParams(new URL(url).search);
-          setTrailerUrl(urlParams.get("v"));
-        })
-        .catch((error) => console.log(error));
-    }
-  };
-
-  const closeModal = () => {
-    setSelectedMovie(null);
-    setTrailerUrl("");
+    // Navigasi ke halaman detail dengan membawa data film
+    const type = movie.media_type || (isLargeRow ? "tv" : "movie");
+    navigate(`/detail/${type}/${movie.id}`, { state: { movie, type } });
   };
 
   return (
@@ -55,39 +32,30 @@ function Row({ title, fetchUrl, isLargeRow }) {
           (movie) =>
             ((isLargeRow && movie.poster_path) ||
               (!isLargeRow && movie.backdrop_path)) && (
-              <img
-                key={movie.id}
+              <div 
+                key={movie.id} 
+                className={`row__poster-container ${isLargeRow && "row__posterLarge-container"}`}
                 onClick={() => handleClick(movie)}
-                className={`row__poster ${isLargeRow && "row__posterLarge"}`}
-                src={`${base_url}${
-                  isLargeRow ? movie.poster_path : movie.backdrop_path
-                }`}
-                alt={movie.name}
-              />
+              >
+                <img
+                  className={`row__poster ${isLargeRow && "row__posterLarge"}`}
+                  src={`${base_url}${
+                    isLargeRow ? movie.poster_path : movie.backdrop_path
+                  }`}
+                  alt={movie.name || movie.title}
+                />
+                <div className="row__poster-info">
+                  <div className="row__poster-title">
+                    {movie.title || movie.name || movie.original_name}
+                  </div>
+                  <div className="row__poster-rating">
+                    ★ {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}
+                  </div>
+                </div>
+              </div>
             )
         )}
       </div>
-
-      {selectedMovie && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <span className="modal-close" onClick={closeModal}>
-              &times;
-            </span>
-            <h2>{selectedMovie?.name || selectedMovie?.title || selectedMovie?.original_name}</h2>
-            <p><strong>Rating:</strong> {selectedMovie.vote_average} / 10</p>
-            <p>{selectedMovie.overview}</p>
-            
-            <div className="trailer-container">
-              {trailerUrl ? (
-                 <YouTube videoId={trailerUrl} opts={opts} />
-              ) : (
-                 <p>Trailer not available.</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
