@@ -1,12 +1,14 @@
 .row {
   margin-left: 20px;
   color: white;
+  margin-bottom: 20px;
 }
 
 .row h2 {
   font-size: 1.2rem;
   margin-bottom: 10px;
   margin-top: 10px;
+  font-weight: 700;
 }
 
 @media (min-width: 768px) {
@@ -19,7 +21,8 @@
   display: flex;
   overflow-y: hidden;
   overflow-x: scroll;
-  padding: 20px;
+  padding: 10px 0 20px 0;
+  gap: 15px;
 }
 
 .row__posters::-webkit-scrollbar {
@@ -27,92 +30,65 @@
 }
 
 .row__poster-container {
-  position: relative;
-  transition: transform 450ms;
-  margin-right: 10px;
+  display: flex;
+  flex-direction: column;
   cursor: pointer;
-  width: 100%;
-  max-height: 100px;
+  width: 130px; /* Standar Lebar Poster Vertikal */
   flex-shrink: 0;
+  transition: transform 0.3s ease-out;
 }
 
 @media (min-width: 768px) {
   .row__poster-container {
-    max-height: 120px;
-    margin-right: 15px;
+    width: 150px;
   }
 }
 
 .row__posterLarge-container {
-  max-height: 200px;
+  width: 160px;
 }
 
 @media (min-width: 768px) {
   .row__posterLarge-container {
-    max-height: 250px;
+    width: 200px;
   }
 }
 
 .row__poster {
-  object-fit: contain;
   width: 100%;
-  max-height: inherit;
-  border-radius: 4px;
-}
-
-.row__posterLarge {
-  max-height: inherit;
+  aspect-ratio: 2 / 3; /* Memaksa rasio poster film standar */
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
 }
 
 .row__poster-container:hover {
-  transform: scale(1.08);
-  opacity: 1;
+  transform: scale(1.05);
   z-index: 2;
 }
 
 .row__poster-info {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 10px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-  opacity: 0;
-  transition: opacity 0.3s;
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-}
-
-.row__poster-container:hover .row__poster-info {
-  opacity: 1;
+  gap: 4px;
 }
 
 .row__poster-title {
-  font-size: 0.8rem;
-  font-weight: bold;
+  font-size: 0.9rem;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 2px;
+  color: #e5e5e5;
 }
 
 .row__poster-rating {
-  font-size: 0.7rem;
-  color: #46d369; /* Warna hijau khas rating */
+  font-size: 0.85rem;
+  color: #46d369; /* Warna Hijau Rating */
+  font-weight: 700;
 }
 
-
-.row__loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  color: #a3a3a3;
-  font-size: 0.8rem;
-}
 
 /* --- SKELETON SHIMMER EFFECT --- */
 .skeleton-row {
@@ -134,31 +110,52 @@
 .skeleton-posters {
   display: flex;
   gap: 15px;
-  padding: 20px 20px 20px 0;
+  padding: 10px 0 20px 0;
   overflow: hidden;
+}
+
+.skeleton-poster-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .skeleton-poster {
   flex-shrink: 0;
-  width: 177px; /* Perkiraan lebar standard backdrop */
-  height: 100px;
+  width: 130px;
+  height: 195px; /* Rasio 2:3 dari 130px */
   background-color: #333;
-  border-radius: 4px;
+  border-radius: 6px;
   animation: shimmer 1.5s infinite linear;
   background: linear-gradient(to right, #333 4%, #444 25%, #333 36%);
   background-size: 1000px 100%;
 }
 
-.skeleton-poster.large {
-  width: 166px; /* Perkiraan lebar standard poster vertikal */
-  height: 250px;
+@media (min-width: 768px) {
+  .skeleton-poster {
+    width: 150px;
+    height: 225px;
+  }
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
+.skeleton-poster.large {
+  width: 160px;
+  height: 240px;
+}
+
+@media (min-width: 768px) {
+  .skeleton-poster.large {
+    width: 200px;
+    height: 300px;
   }
-  100% {
-    background-position: 1000px 0;
-  }
+}
+
+.skeleton-text {
+  width: 80%;
+  height: 14px;
+  border-radius: 4px;
+  background-color: #333;
+  animation: shimmer 1.5s infinite linear;
+  background: linear-gradient(to right, #333 4%, #444 25%, #333 36%);
+  background-size: 1000px 100%;
 }

@@ -69,8 +69,12 @@ function Row({ title, fetchUrl, isLargeRow }) {
       <div className="skeleton-row">
         <div className="skeleton-title"></div>
         <div className="skeleton-posters">
-          {Array(6).fill(0).map((_, i) => (
-            <div key={i} className={`skeleton-poster ${isLargeRow ? 'large' : ''}`}></div>
+          {Array(8).fill(0).map((_, i) => (
+            <div key={i} className="skeleton-poster-container">
+               <div className={`skeleton-poster ${isLargeRow ? 'large' : ''}`}></div>
+               <div className="skeleton-text"></div>
+               <div className="skeleton-text" style={{width: '40%'}}></div>
+            </div>
           ))}
         </div>
       </div>
@@ -82,8 +86,10 @@ function Row({ title, fetchUrl, isLargeRow }) {
       <h2>{title}</h2>
       <div className="row__posters">
         {movies.map((movie, index) => {
-          const isValidImage = (isLargeRow && movie.poster_path) || (!isLargeRow && movie.backdrop_path);
-          if (!isValidImage) return null;
+          // Semuanya difokuskan untuk memanggil poster_path agar layoutnya rapi secara vertikal 
+          // Jika poster_path gagal/kosong, kita skip render agar card tidak bolong.
+          const imgPath = movie.poster_path;
+          if (!imgPath) return null;
 
           if (movies.length === index + 1) {
             return (
@@ -94,8 +100,8 @@ function Row({ title, fetchUrl, isLargeRow }) {
                 onClick={() => handleClick(movie)}
               >
                 <img
-                  className={`row__poster ${isLargeRow && "row__posterLarge"}`}
-                  src={`${base_url}${isLargeRow ? movie.poster_path : movie.backdrop_path}`}
+                  className="row__poster"
+                  src={`${base_url}${imgPath}`}
                   alt={movie.name || movie.title}
                   loading="lazy"
                 />
@@ -117,8 +123,8 @@ function Row({ title, fetchUrl, isLargeRow }) {
                 onClick={() => handleClick(movie)}
               >
                 <img
-                  className={`row__poster ${isLargeRow && "row__posterLarge"}`}
-                  src={`${base_url}${isLargeRow ? movie.poster_path : movie.backdrop_path}`}
+                  className="row__poster"
+                  src={`${base_url}${imgPath}`}
                   alt={movie.name || movie.title}
                   loading="lazy"
                 />
@@ -135,7 +141,11 @@ function Row({ title, fetchUrl, isLargeRow }) {
           }
         })}
         {loading && hasMore && (
-           <div className={`skeleton-poster ${isLargeRow ? 'large' : ''}`} style={{marginLeft: '10px'}}></div>
+           <div className="skeleton-poster-container">
+               <div className={`skeleton-poster ${isLargeRow ? 'large' : ''}`}></div>
+               <div className="skeleton-text"></div>
+               <div className="skeleton-text" style={{width: '40%'}}></div>
+           </div>
         )}
       </div>
     </div>

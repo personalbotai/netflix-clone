@@ -19,8 +19,8 @@ function LocalRow({ title, movies, isLargeRow }) {
       <h2>{title}</h2>
       <div className="row__posters">
         {movies.map((movie) => {
-          const isValidImage = (isLargeRow && movie.poster_path) || (!isLargeRow && movie.backdrop_path);
-          if (!isValidImage) return null;
+          const imgPath = movie.poster_path;
+          if (!imgPath) return null;
 
           return (
             <div
@@ -29,8 +29,8 @@ function LocalRow({ title, movies, isLargeRow }) {
               onClick={() => handleClick(movie)}
             >
               <img
-                className={`row__poster ${isLargeRow && "row__posterLarge"}`}
-                src={`${base_url}${isLargeRow ? movie.poster_path : movie.backdrop_path}`}
+                className="row__poster"
+                src={`${base_url}${imgPath}`}
                 alt={movie.name || movie.title}
                 loading="lazy"
               />
