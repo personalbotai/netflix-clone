@@ -6,7 +6,7 @@ import Footer from './Footer';
 import './SearchPage.css';
 import { API_KEY } from '../requests';
 
-const base_url = "https://image.tmdb.org/t/p/w500"; // Menggunakan ukuran yang lebih kecil agar lebih cepat
+const base_url = "https://image.tmdb.org/t/p/w500";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -29,9 +29,9 @@ function SearchPage() {
       
       setLoading(true);
       try {
-        const req = await axios.get(`/search/multi?api_key=***}&language=en-US&query=${encodeURIComponent(query)}&page=1&include_adult=false`);
+        const req = await axios.get(`/search/multi?api_key=${API_KEY}&language=en-US&query=${encodeURIComponent(query)}&page=1&include_adult=false`);
         
-        // Filter out results that don't have images (poster_path or backdrop_path)
+        // Filter out results that don't have images
         const validResults = req.data.results.filter(
           item => item.poster_path || item.backdrop_path
         );
@@ -46,7 +46,7 @@ function SearchPage() {
   }, [query]);
 
   const handleClick = (movie) => {
-    const type = movie.media_type || "movie"; // default ke movie kalau undefined (biasanya terjadi jika bukan dari multi-search, walau disini kita pakai multi)
+    const type = movie.media_type || "movie"; 
     navigate(`/detail/${type}/${movie.id}`, { state: { movie, type } });
   };
 
