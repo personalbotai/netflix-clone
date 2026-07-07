@@ -8,7 +8,7 @@ const base_url = "https://image.tmdb.org/t/p/original/";
 function Row({ title, fetchUrl, isLargeRow }) {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef();
   const navigate = useNavigate();
@@ -16,7 +16,6 @@ function Row({ title, fetchUrl, isLargeRow }) {
   const fetchMovies = async (pageNumber) => {
     setLoading(true);
     try {
-      // Pastikan ada separator yang benar (TMDB API key bisa digabungkan dengan & atau ?)
       const urlSeparator = fetchUrl.includes("?") ? "&" : "?";
       const request = await axios.get(`${fetchUrl}${urlSeparator}page=${pageNumber}`);
       
@@ -24,7 +23,6 @@ function Row({ title, fetchUrl, isLargeRow }) {
         setHasMore(false);
       } else {
         setMovies((prevMovies) => {
-          // Menghindari duplikasi id
           const newMovies = request.data.results.filter(
             (newMovie) => !prevMovies.some((prev) => prev.id === newMovie.id)
           );
@@ -42,7 +40,6 @@ function Row({ title, fetchUrl, isLargeRow }) {
     // eslint-disable-next-line
   }, [page, fetchUrl]);
 
-  // Intersection Observer untuk Infinite Scrolling pada sumbu X
   const lastMovieElementRef = useCallback(
     (node) => {
       if (loading) return;
@@ -65,6 +62,20 @@ function Row({ title, fetchUrl, isLargeRow }) {
     const type = movie.media_type || (isLargeRow ? "tv" : "movie");
     navigate(`/detail/${type}/${movie.id}`, { state: { movie, type } });
   };
+
+  // Tampilkan skeleton saat render pertama kali dan data masih kosong
+  if (loading && movies.length === 0) {
+    return (
+      <div className="skeleton-row">
+        <div className="skeleton-title"></div>
+        <div className="skeleton-posters">
+          {Array(6).fill(0).map((_, i) => (
+            <div key={i} className={`skeleton-poster ${isLargeRow ? 'large' : ''}`}></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="row">
@@ -123,7 +134,9 @@ function Row({ title, fetchUrl, isLargeRow }) {
             );
           }
         })}
-        {loading && <div className="row__loading">Loading...</div>}
+        {loading && hasMore && (
+           <div className={`skeleton-poster ${isLargeRow ? 'large' : ''}`} style={{marginLeft: '10px'}}></div>
+        )}
       </div>
     </div>
   );
