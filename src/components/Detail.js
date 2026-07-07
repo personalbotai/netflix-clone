@@ -17,12 +17,18 @@ function Detail() {
   const [trailerUrl, setTrailerUrl] = useState("");
   const [error, setError] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isInList, setIsInList] = useState(false);
 
   const passedMovie = location.state?.movie;
 
   useEffect(() => {
     window.scrollTo(0, 0);
     setError(false);
+    
+    // Periksa apakah film sudah ada di My List
+    const list = JSON.parse(localStorage.getItem("netflixCloneMyList")) || [];
+    const exists = list.some(item => String(item.id) === String(id));
+    setIsInList(exists);
     
     async function fetchDetail() {
       try {
@@ -36,7 +42,6 @@ function Detail() {
            setCast(credReq.data.cast.slice(0, 10)); 
         }
 
-        // Cari lebih luas (bukan sekedar Trailer, tapi Teaser / Clip jika trailer tidak ada)
         const vidReq = await axios.get(`/${fetchType}/${id}/videos?api_key=***}`);
         if(vidReq.data && vidReq.data.results) {
             const ytVideos = vidReq.data.results.filter(vid => vid.site === "YouTube");
@@ -55,6 +60,26 @@ function Detail() {
        fetchDetail();
     }
   }, [id, type]);
+
+  const toggleMyList = () => {
+    const list = JSON.parse(localStorage.getItem("netflixCloneMyList")) || [];
+    const movieObj = movieDetails || passedMovie;
+    
+    // Karena movie obj dari list/search mungkin tidak punya properti media_type, kita force attach tipe-nya
+    const movieToSave = { ...movieObj, media_type: type === "tv" ? "tv" : "movie" };
+
+    if (isInList) {
+      // Remove
+      const newList = list.filter(item => String(item.id) !== String(id));
+      localStorage.setItem("netflixCloneMyList", JSON.stringify(newList));
+      setIsInList(false);
+    } else {
+      // Add
+      list.unshift(movieToSave);
+      localStorage.setItem("netflixCloneMyList", JSON.stringify(list));
+      setIsInList(true);
+    }
+  };
 
   const movie = movieDetails || passedMovie;
 
@@ -90,7 +115,6 @@ function Detail() {
           <div className="fullscreen-player__close" onClick={() => setIsPlaying(false)}>
             &times;
           </div>
-          {/* Untuk demonstrasi pemutaran film "full", kita men-loop video placeholder sinematik (video open source) karena tidak mungkin membajak film Netflix sesungguhnya */}
           <video 
             autoPlay 
             controls 
@@ -124,12 +148,46 @@ function Detail() {
             
             <h1 className="detail__title">{movie.title || movie.name || movie.original_name}</h1>
             
-            <div className="detail__controls">
+            <div className="detail__controls" style={{ display: 'flex', gap: '15px' }}>
               <button className="detail__play-btn" onClick={handlePlayClick}>
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                   <polygon points="5 3 19 12 5 21 5 3"></polygon>
                 </svg>
                 Play
+              </button>
+
+              <button 
+                onClick={toggleMyList}
+                style={{
+                  background: 'rgba(51, 51, 51, 0.7)',
+                  color: 'white',
+                  padding: '10px 25px',
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  borderRadius: '4px',
+                  border: '1px solid white',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  transition: '0.2s',
+                }}
+              >
+                {isInList ? (
+                   <>
+                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '8px'}}>
+                       <polyline points="20 6 9 17 4 12"></polyline>
+                     </svg>
+                     Added to List
+                   </>
+                ) : (
+                   <>
+                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '8px'}}>
+                       <line x1="12" y1="5" x2="12" y2="19"></line>
+                       <line x1="5" y1="12" x2="19" y2="12"></line>
+                     </svg>
+                     My List
+                   </>
+                )}
               </button>
             </div>
 
