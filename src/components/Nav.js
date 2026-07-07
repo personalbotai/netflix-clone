@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Nav.css";
 
 function Nav() {
   const [show, handleShow] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.addEventListener("scroll", () => {
@@ -15,14 +18,35 @@ function Nav() {
     };
   }, []);
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+    }
+  };
+
   return (
     <div className={`nav ${show && "nav__black"}`}>
-      <h2 style={{ color: "red", fontWeight: "bold", fontFamily: "sans-serif" }}>FlixUI</h2>
-      <img
-        className="nav__avatar"
-        src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png"
-        alt="Avatar"
-      />
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <h2 className="nav__logo">FlixUI</h2>
+      </Link>
+      
+      <div className="nav__right">
+        <form className="nav__search" onSubmit={handleSearch}>
+          <input 
+            type="text" 
+            className="nav__search-input" 
+            placeholder="Search titles..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </form>
+        <img
+          className="nav__avatar"
+          src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png"
+          alt="Avatar"
+        />
+      </div>
     </div>
   );
 }
