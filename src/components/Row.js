@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const base_url = "https://image.tmdb.org/t/p/original/";
 
-function Row({ title, fetchUrl, isLargeRow }) {
+function Row({ title, fetchUrl, isLargeRow, isGridMode = false }) {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -36,6 +36,13 @@ function Row({ title, fetchUrl, isLargeRow }) {
   };
 
   useEffect(() => {
+    // Reset state jika URL berubah (misal ganti kategori filter)
+    setMovies([]);
+    setPage(1);
+    setHasMore(true);
+  }, [fetchUrl]);
+
+  useEffect(() => {
     fetchMovies(page);
     // eslint-disable-next-line
   }, [page, fetchUrl]);
@@ -51,11 +58,12 @@ function Row({ title, fetchUrl, isLargeRow }) {
       }, {
         root: null,
         rootMargin: '0px',
-        threshold: 0.5
+        // Jika mode grid, deteksi mendekati akhir elemen lebih cepat agar infinite scroll lebih mulus
+        threshold: isGridMode ? 0.1 : 0.5 
       });
       if (node) observer.current.observe(node);
     },
-    [loading, hasMore]
+    [loading, hasMore, isGridMode]
   );
 
   const handleClick = (movie) => {
@@ -63,13 +71,12 @@ function Row({ title, fetchUrl, isLargeRow }) {
     navigate(`/detail/${type}/${movie.id}`, { state: { movie, type } });
   };
 
-  // Tampilkan skeleton saat render pertama kali dan data masih kosong
   if (loading && movies.length === 0) {
     return (
       <div className="skeleton-row">
         <div className="skeleton-title"></div>
-        <div className="skeleton-posters">
-          {Array(8).fill(0).map((_, i) => (
+        <div className={`skeleton-posters ${isGridMode ? "grid-mode" : ""}`}>
+          {Array(isGridMode ? 12 : 8).fill(0).map((_, i) => (
             <div key={i} className="skeleton-poster-container">
                <div className={`skeleton-poster ${isLargeRow ? 'large' : ''}`}></div>
                <div className="skeleton-text"></div>
@@ -84,10 +91,8 @@ function Row({ title, fetchUrl, isLargeRow }) {
   return (
     <div className="row">
       <h2>{title}</h2>
-      <div className="row__posters">
+      <div className={`row__posters ${isGridMode ? "grid-mode" : ""}`}>
         {movies.map((movie, index) => {
-          // Semuanya difokuskan untuk memanggil poster_path agar layoutnya rapi secara vertikal 
-          // Jika poster_path gagal/kosong, kita skip render agar card tidak bolong.
           const imgPath = movie.poster_path;
           if (!imgPath) return null;
 
@@ -96,7 +101,7 @@ function Row({ title, fetchUrl, isLargeRow }) {
               <div
                 ref={lastMovieElementRef}
                 key={`${movie.id}-${index}`}
-                className={`row__poster-container ${isLargeRow && "row__posterLarge-container"}`}
+                className={`row__poster-container ${isLargeRow && !isGridMode && "row__posterLarge-container"}`}
                 onClick={() => handleClick(movie)}
               >
                 <img
@@ -119,7 +124,7 @@ function Row({ title, fetchUrl, isLargeRow }) {
             return (
               <div
                 key={`${movie.id}-${index}`}
-                className={`row__poster-container ${isLargeRow && "row__posterLarge-container"}`}
+                className={`row__poster-container ${isLargeRow && !isGridMode && "row__posterLarge-container"}`}
                 onClick={() => handleClick(movie)}
               >
                 <img
@@ -140,12 +145,17 @@ function Row({ title, fetchUrl, isLargeRow }) {
             );
           }
         })}
+        {/* Indikator Loading Tambahan untuk Grid Mode (Infinite Scroll bawah) atau Skeleton Horizontal biasa */}
         {loading && hasMore && (
-           <div className="skeleton-poster-container">
-               <div className={`skeleton-poster ${isLargeRow ? 'large' : ''}`}></div>
-               <div className="skeleton-text"></div>
-               <div className="skeleton-text" style={{width: '40%'}}></div>
-           </div>
+           isGridMode ? (
+             <div className="grid-loading-spinner">Loading more movies...</div>
+           ) : (
+             <div className="skeleton-poster-container">
+                 <div className={`skeleton-poster ${isLargeRow ? 'large' : ''}`}></div>
+                 <div className="skeleton-text"></div>
+                 <div className="skeleton-text" style={{width: '40%'}}></div>
+             </div>
+           )
         )}
       </div>
     </div>

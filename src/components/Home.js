@@ -58,7 +58,6 @@ function Home() {
           {myList.length > 0 && (
             <LocalRow title="My List" movies={myList} isLargeRow={false} />
           )}
-          {/* Skip All and Documentary for rendering loop, or render all manually. We'll render all map dynamically except 'all' */}
           {categories.map((cat) => {
              if (cat.id === "all") return null;
              return (
@@ -67,6 +66,7 @@ function Home() {
                  title={cat.name === "Originals" ? "ORIGINALS" : cat.name} 
                  fetchUrl={cat.url} 
                  isLargeRow={cat.isLarge} 
+                 isGridMode={false}
                />
              )
           })}
@@ -77,12 +77,13 @@ function Home() {
     const selectedCategory = categories.find(cat => cat.id === activeCategory);
     
     return (
-      <div style={{ paddingTop: '20px', minHeight: '60vh' }}>
+      <div style={{ paddingTop: '20px', minHeight: '60vh', paddingBottom: '50px' }}>
         <Row 
           key={selectedCategory.id}
-          title={`Top ${selectedCategory.name}`} 
+          title={`${selectedCategory.name} Movies`} 
           fetchUrl={selectedCategory.url} 
           isLargeRow={selectedCategory.isLarge} 
+          isGridMode={true} /* Menerapkan format Grid 2 Baris / Multi-baris ke bawah */
         />
       </div>
     );

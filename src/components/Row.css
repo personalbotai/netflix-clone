@@ -17,6 +17,7 @@
   }
 }
 
+/* --- Tampilan Horizontal Normal (All / Default) --- */
 .row__posters {
   display: flex;
   overflow-y: hidden;
@@ -29,18 +30,43 @@
   display: none;
 }
 
+/* --- Tampilan Grid 2 Kolom (Mode Filter Aktif) --- */
+.row__posters.grid-mode {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 20px 15px;
+  overflow-x: hidden;
+  overflow-y: visible;
+  padding-right: 20px;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .row__posters.grid-mode {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
 .row__poster-container {
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  width: 130px; /* Standar Lebar Poster Vertikal */
+  width: 130px; /* Standar Lebar Horizontal Mode */
   flex-shrink: 0;
   transition: transform 0.3s ease-out;
+}
+
+/* Jika sedang Grid Mode, biarkan kontainer memenuhi kolom Grid */
+.grid-mode .row__poster-container {
+  width: 100%; 
 }
 
 @media (min-width: 768px) {
   .row__poster-container {
     width: 150px;
+  }
+  .grid-mode .row__poster-container {
+    width: 100%;
   }
 }
 
@@ -54,9 +80,14 @@
   }
 }
 
+.grid-mode .row__posterLarge-container {
+  width: 100%;
+}
+
+
 .row__poster {
   width: 100%;
-  aspect-ratio: 2 / 3; /* Memaksa rasio poster film standar */
+  aspect-ratio: 2 / 3;
   object-fit: cover;
   border-radius: 6px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.4);
@@ -85,7 +116,7 @@
 
 .row__poster-rating {
   font-size: 0.85rem;
-  color: #46d369; /* Warna Hijau Rating */
+  color: #46d369;
   font-weight: 700;
 }
 
@@ -114,16 +145,45 @@
   overflow: hidden;
 }
 
+.skeleton-posters.grid-mode {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 20px 15px;
+  overflow-x: hidden;
+  overflow-y: visible;
+  padding-right: 20px;
+}
+
+@media (min-width: 768px) {
+  .skeleton-posters.grid-mode {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
 .skeleton-poster-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 130px;
+  flex-shrink: 0;
+}
+
+.grid-mode .skeleton-poster-container {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .skeleton-poster-container {
+    width: 150px;
+  }
+  .grid-mode .skeleton-poster-container {
+    width: 100%;
+  }
 }
 
 .skeleton-poster {
-  flex-shrink: 0;
-  width: 130px;
-  height: 195px; /* Rasio 2:3 dari 130px */
+  width: 100%;
+  aspect-ratio: 2 / 3;
   background-color: #333;
   border-radius: 6px;
   animation: shimmer 1.5s infinite linear;
@@ -131,24 +191,6 @@
   background-size: 1000px 100%;
 }
 
-@media (min-width: 768px) {
-  .skeleton-poster {
-    width: 150px;
-    height: 225px;
-  }
-}
-
-.skeleton-poster.large {
-  width: 160px;
-  height: 240px;
-}
-
-@media (min-width: 768px) {
-  .skeleton-poster.large {
-    width: 200px;
-    height: 300px;
-  }
-}
 
 .skeleton-text {
   width: 80%;
@@ -158,4 +200,14 @@
   animation: shimmer 1.5s infinite linear;
   background: linear-gradient(to right, #333 4%, #444 25%, #333 36%);
   background-size: 1000px 100%;
+}
+
+/* Spinner untuk Grid Mode */
+.grid-loading-spinner {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  color: #a3a3a3;
+  font-size: 1rem;
 }
