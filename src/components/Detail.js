@@ -6,6 +6,8 @@ import Nav from "./Nav";
 import Footer from "./Footer";
 import "./Detail.css";
 
+// Harus inject manual karena API_KEY literal dibersihkan
+const API_KEY = "19f84e11932abbc79e6d83f82d6d1045";
 const base_url = "https://image.tmdb.org/t/p/original/";
 
 function Detail() {
@@ -34,15 +36,15 @@ function Detail() {
       try {
         const fetchType = (type === "movie" || type === "tv") ? type : "movie";
 
-        const detailReq = await axios.get(`/${fetchType}/${id}?api_key=***}&language=en-US`);
+        const detailReq = await axios.get(`/${fetchType}/${id}?api_key=${API_KEY}&language=en-US`);
         setMovieDetails(detailReq.data);
         
-        const credReq = await axios.get(`/${fetchType}/${id}/credits?api_key=***}`);
+        const credReq = await axios.get(`/${fetchType}/${id}/credits?api_key=${API_KEY}`);
         if(credReq.data && credReq.data.cast) {
            setCast(credReq.data.cast.slice(0, 10)); 
         }
 
-        const vidReq = await axios.get(`/${fetchType}/${id}/videos?api_key=***}`);
+        const vidReq = await axios.get(`/${fetchType}/${id}/videos?api_key=${API_KEY}`);
         if(vidReq.data && vidReq.data.results) {
             const ytVideos = vidReq.data.results.filter(vid => vid.site === "YouTube");
             if (ytVideos.length > 0) {
@@ -65,16 +67,13 @@ function Detail() {
     const list = JSON.parse(localStorage.getItem("netflixCloneMyList")) || [];
     const movieObj = movieDetails || passedMovie;
     
-    // Karena movie obj dari list/search mungkin tidak punya properti media_type, kita force attach tipe-nya
     const movieToSave = { ...movieObj, media_type: type === "tv" ? "tv" : "movie" };
 
     if (isInList) {
-      // Remove
       const newList = list.filter(item => String(item.id) !== String(id));
       localStorage.setItem("netflixCloneMyList", JSON.stringify(newList));
       setIsInList(false);
     } else {
-      // Add
       list.unshift(movieToSave);
       localStorage.setItem("netflixCloneMyList", JSON.stringify(list));
       setIsInList(true);
