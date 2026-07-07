@@ -1,7 +1,13 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './Footer.css';
 
 function Footer() {
+  const handleClick = (e) => {
+    e.preventDefault();
+    alert("Fitur ini akan segera hadir. Saat ini aplikasi masih dalam tahap pengembangan (MVP).");
+  };
+
   return (
     <footer className="footer">
       <div className="footer__container">
@@ -10,24 +16,24 @@ function Footer() {
         </p>
         
         <div className="footer__links">
-          <a href="#" className="footer__link">FAQ</a>
-          <a href="#" className="footer__link">Help Center</a>
-          <a href="#" className="footer__link">Account</a>
-          <a href="#" className="footer__link">Media Center</a>
+          <Link to="/" onClick={handleClick} className="footer__link">FAQ</Link>
+          <Link to="/" onClick={handleClick} className="footer__link">Help Center</Link>
+          <Link to="/" onClick={handleClick} className="footer__link">Account</Link>
+          <Link to="/" onClick={handleClick} className="footer__link">Media Center</Link>
           
-          <a href="#" className="footer__link">Investor Relations</a>
-          <a href="#" className="footer__link">Jobs</a>
-          <a href="#" className="footer__link">Ways to Watch</a>
-          <a href="#" className="footer__link">Terms of Use</a>
+          <Link to="/" onClick={handleClick} className="footer__link">Investor Relations</Link>
+          <Link to="/" onClick={handleClick} className="footer__link">Jobs</Link>
+          <Link to="/" onClick={handleClick} className="footer__link">Ways to Watch</Link>
+          <Link to="/" onClick={handleClick} className="footer__link">Terms of Use</Link>
           
-          <a href="#" className="footer__link">Privacy</a>
-          <a href="#" className="footer__link">Cookie Preferences</a>
-          <a href="#" className="footer__link">Corporate Information</a>
-          <a href="#" className="footer__link">Contact Us</a>
+          <Link to="/" onClick={handleClick} className="footer__link">Privacy</Link>
+          <Link to="/" onClick={handleClick} className="footer__link">Cookie Preferences</Link>
+          <Link to="/" onClick={handleClick} className="footer__link">Corporate Information</Link>
+          <Link to="/" onClick={handleClick} className="footer__link">Contact Us</Link>
           
-          <a href="#" className="footer__link">Speed Test</a>
-          <a href="#" className="footer__link">Legal Notices</a>
-          <a href="#" className="footer__link">Only on FlixUI</a>
+          <Link to="/" onClick={handleClick} className="footer__link">Speed Test</Link>
+          <Link to="/" onClick={handleClick} className="footer__link">Legal Notices</Link>
+          <Link to="/" onClick={handleClick} className="footer__link">Only on FlixUI</Link>
         </div>
         
         <div className="footer__bottom">
