@@ -1,0 +1,44 @@
+.category-filter {
+  display: flex;
+  gap: 10px;
+  padding: 15px 20px;
+  overflow-x: auto;
+  background-color: #111;
+  position: sticky;
+  top: 70px;
+  z-index: 50;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+  margin-bottom: 20px;
+}
+
+.category-filter::-webkit-scrollbar {
+  display: none;
+}
+
+.category-pill {
+  background: #222;
+  color: #e5e5e5;
+  border: 1px solid #444;
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.category-pill:hover {
+  background: #333;
+  color: white;
+}
+
+.category-pill.active {
+  background: white;
+  color: black;
+  border-color: white;
+}
+
+.home-content {
+  min-height: 50vh;
+}
