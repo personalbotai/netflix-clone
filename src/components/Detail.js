@@ -27,22 +27,20 @@ function Detail() {
     
     async function fetchDetail() {
       try {
-        // Karena ada perbedaan properti media_type kadang tidak diset secara benar dari API search/multi
-        // Kami pastikan param type adalah "movie" atau "tv" secara strict
         const fetchType = (type === "movie" || type === "tv") ? type : "movie";
 
         // Fetch full details
-        const detailReq = await axios.get(`/${fetchType}/${id}?api_key=${API_KEY}&language=en-US`);
+        const detailReq = await axios.get(`/${fetchType}/${id}?api_key=***}&language=en-US`);
         setMovieDetails(detailReq.data);
         
         // Fetch cast/credits
-        const credReq = await axios.get(`/${fetchType}/${id}/credits?api_key=${API_KEY}`);
+        const credReq = await axios.get(`/${fetchType}/${id}/credits?api_key=***}`);
         if(credReq.data && credReq.data.cast) {
-           setCast(credReq.data.cast.slice(0, 10)); // Ambil 10 aktor utama
+           setCast(credReq.data.cast.slice(0, 10)); 
         }
 
         // Fetch videos (untuk trailer)
-        const vidReq = await axios.get(`/${fetchType}/${id}/videos?api_key=${API_KEY}`);
+        const vidReq = await axios.get(`/${fetchType}/${id}/videos?api_key=***}`);
         if(vidReq.data && vidReq.data.results) {
             const trailers = vidReq.data.results.filter(vid => vid.type === "Trailer" && vid.site === "YouTube");
             if(trailers.length > 0) {
@@ -51,7 +49,6 @@ function Detail() {
               setTrailerUrl(vidReq.data.results[0].key);
             }
         }
-
       } catch (err) {
         console.error("Error fetching detail", err);
         setError(true);
@@ -101,21 +98,20 @@ function Detail() {
         </div>
 
         <div className="detail__content">
-          <img 
-            src={`${base_url}${movie.poster_path || movie.backdrop_path}`} 
-            alt={movie.title || movie.name} 
-            className="detail__poster"
-          />
           
           <div className="detail__info">
             <div className="detail__back" onClick={() => navigate(-1)}>
-              &larr; Back
+               <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                 <line x1="19" y1="12" x2="5" y2="12"></line>
+                 <polyline points="12 19 5 12 12 5"></polyline>
+               </svg>
+               Back
             </div>
             
             <h1 className="detail__title">{movie.title || movie.name || movie.original_name}</h1>
             
             <div className="detail__meta">
-              <span className="detail__rating">★ {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"} Rating</span>
+              <span className="detail__rating">★ {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"} Match</span>
               {movie.release_date || movie.first_air_date ? 
                 <span>{ (movie.release_date || movie.first_air_date).substring(0,4) }</span> : null
               }
@@ -138,7 +134,7 @@ function Detail() {
                       {actor.profile_path ? (
                         <img src={`${base_url}${actor.profile_path}`} alt={actor.name} loading="lazy" />
                       ) : (
-                        <div style={{width: '100%', height: '120px', backgroundColor: '#333', borderRadius: '8px', marginBottom: '8px'}} />
+                        <div style={{width: '100%', height: '100%', minHeight:'120px', backgroundColor: '#333', borderRadius: '8px', marginBottom: '8px'}} />
                       )}
                       <div className="detail__actor-name">{actor.name}</div>
                       <div className="detail__actor-char">{actor.character}</div>
@@ -149,7 +145,7 @@ function Detail() {
             )}
 
             <div className="detail__trailer">
-              <h3 className="detail__trailer-title">Official Trailer</h3>
+              {trailerUrl && <h3 className="detail__trailer-title">Trailer</h3>}
               {trailerUrl ? (
                 <div className="detail__trailer-video">
                   <YouTube videoId={trailerUrl} opts={opts} />
