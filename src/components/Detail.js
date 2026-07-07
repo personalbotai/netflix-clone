@@ -16,40 +16,67 @@ function Detail() {
   const [movieDetails, setMovieDetails] = useState(null);
   const [cast, setCast] = useState([]);
   const [trailerUrl, setTrailerUrl] = useState("");
+  const [error, setError] = useState(false);
 
   // Gunakan data dari state navigasi jika ada, sebagai fallback
   const passedMovie = location.state?.movie;
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    setError(false);
     
     async function fetchDetail() {
       try {
+        // Karena ada perbedaan properti media_type kadang tidak diset secara benar dari API search/multi
+        // Kami pastikan param type adalah "movie" atau "tv" secara strict
+        const fetchType = (type === "movie" || type === "tv") ? type : "movie";
+
         // Fetch full details
-        const detailReq = await axios.get(`/${type}/${id}?api_key=***}&language=en-US`);
+        const detailReq = await axios.get(`/${fetchType}/${id}?api_key=${API_KEY}&language=en-US`);
         setMovieDetails(detailReq.data);
         
         // Fetch cast/credits
-        const credReq = await axios.get(`/${type}/${id}/credits?api_key=***}`);
-        setCast(credReq.data.cast.slice(0, 10)); // Ambil 10 aktor utama
-
-        // Fetch videos (untuk trailer)
-        const vidReq = await axios.get(`/${type}/${id}/videos?api_key=***}`);
-        const trailers = vidReq.data.results.filter(vid => vid.type === "Trailer" && vid.site === "YouTube");
-        if(trailers.length > 0) {
-          setTrailerUrl(trailers[0].key);
-        } else if(vidReq.data.results.length > 0 && vidReq.data.results[0].site === "YouTube") {
-          setTrailerUrl(vidReq.data.results[0].key);
+        const credReq = await axios.get(`/${fetchType}/${id}/credits?api_key=${API_KEY}`);
+        if(credReq.data && credReq.data.cast) {
+           setCast(credReq.data.cast.slice(0, 10)); // Ambil 10 aktor utama
         }
 
-      } catch (error) {
-        console.error("Error fetching detail", error);
+        // Fetch videos (untuk trailer)
+        const vidReq = await axios.get(`/${fetchType}/${id}/videos?api_key=${API_KEY}`);
+        if(vidReq.data && vidReq.data.results) {
+            const trailers = vidReq.data.results.filter(vid => vid.type === "Trailer" && vid.site === "YouTube");
+            if(trailers.length > 0) {
+              setTrailerUrl(trailers[0].key);
+            } else if(vidReq.data.results.length > 0 && vidReq.data.results[0].site === "YouTube") {
+              setTrailerUrl(vidReq.data.results[0].key);
+            }
+        }
+
+      } catch (err) {
+        console.error("Error fetching detail", err);
+        setError(true);
       }
     }
-    fetchDetail();
+    
+    if (id) {
+       fetchDetail();
+    }
   }, [id, type]);
 
   const movie = movieDetails || passedMovie;
+
+  if (error && !passedMovie) {
+     return (
+       <div className="detail">
+         <Nav />
+         <div style={{paddingTop: '150px', textAlign: 'center', fontSize: '1.2rem'}}>
+           Failed to load movie details. (The requested resource could not be found).
+           <br/><br/>
+           <button className="detail__back" onClick={() => navigate(-1)}>&larr; Go Back</button>
+         </div>
+       </div>
+     )
+  }
 
   if (!movie) return <div className="detail"><Nav /><div style={{paddingTop: '100px', textAlign: 'center'}}>Loading...</div></div>;
 
@@ -75,7 +102,7 @@ function Detail() {
 
         <div className="detail__content">
           <img 
-            src={`${base_url}${movie.poster_path}`} 
+            src={`${base_url}${movie.poster_path || movie.backdrop_path}`} 
             alt={movie.title || movie.name} 
             className="detail__poster"
           />
@@ -128,7 +155,7 @@ function Detail() {
                   <YouTube videoId={trailerUrl} opts={opts} />
                 </div>
               ) : (
-                <p>No trailer available for this title.</p>
+                <p style={{color: '#a3a3a3'}}>No trailer available for this title on TMDB.</p>
               )}
             </div>
           </div>
