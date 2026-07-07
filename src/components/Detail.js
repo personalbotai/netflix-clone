@@ -5,7 +5,6 @@ import YouTube from "react-youtube";
 import Nav from "./Nav";
 import Footer from "./Footer";
 import "./Detail.css";
-import { API_KEY } from "../requests";
 
 const base_url = "https://image.tmdb.org/t/p/original/";
 
@@ -17,8 +16,8 @@ function Detail() {
   const [cast, setCast] = useState([]);
   const [trailerUrl, setTrailerUrl] = useState("");
   const [error, setError] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  // Gunakan data dari state navigasi jika ada, sebagai fallback
   const passedMovie = location.state?.movie;
 
   useEffect(() => {
@@ -29,24 +28,21 @@ function Detail() {
       try {
         const fetchType = (type === "movie" || type === "tv") ? type : "movie";
 
-        // Fetch full details
         const detailReq = await axios.get(`/${fetchType}/${id}?api_key=***}&language=en-US`);
         setMovieDetails(detailReq.data);
         
-        // Fetch cast/credits
         const credReq = await axios.get(`/${fetchType}/${id}/credits?api_key=***}`);
         if(credReq.data && credReq.data.cast) {
            setCast(credReq.data.cast.slice(0, 10)); 
         }
 
-        // Fetch videos (untuk trailer)
+        // Cari lebih luas (bukan sekedar Trailer, tapi Teaser / Clip jika trailer tidak ada)
         const vidReq = await axios.get(`/${fetchType}/${id}/videos?api_key=***}`);
         if(vidReq.data && vidReq.data.results) {
-            const trailers = vidReq.data.results.filter(vid => vid.type === "Trailer" && vid.site === "YouTube");
-            if(trailers.length > 0) {
-              setTrailerUrl(trailers[0].key);
-            } else if(vidReq.data.results.length > 0 && vidReq.data.results[0].site === "YouTube") {
-              setTrailerUrl(vidReq.data.results[0].key);
+            const ytVideos = vidReq.data.results.filter(vid => vid.site === "YouTube");
+            if (ytVideos.length > 0) {
+              const trailer = ytVideos.find(vid => vid.type === "Trailer") || ytVideos.find(vid => vid.type === "Teaser") || ytVideos[0];
+              setTrailerUrl(trailer.key);
             }
         }
       } catch (err) {
@@ -67,7 +63,7 @@ function Detail() {
        <div className="detail">
          <Nav />
          <div style={{paddingTop: '150px', textAlign: 'center', fontSize: '1.2rem'}}>
-           Failed to load movie details. (The requested resource could not be found).
+           Failed to load movie details.
            <br/><br/>
            <button className="detail__back" onClick={() => navigate(-1)}>&larr; Go Back</button>
          </div>
@@ -83,9 +79,28 @@ function Detail() {
     playerVars: { autoplay: 0 },
   };
 
+  const handlePlayClick = () => {
+    setIsPlaying(true);
+  };
+
   return (
     <>
-      <div className="detail">
+      {isPlaying && (
+        <div className="fullscreen-player">
+          <div className="fullscreen-player__close" onClick={() => setIsPlaying(false)}>
+            &times;
+          </div>
+          {/* Untuk demonstrasi pemutaran film "full", kita men-loop video placeholder sinematik (video open source) karena tidak mungkin membajak film Netflix sesungguhnya */}
+          <video 
+            autoPlay 
+            controls 
+            className="fullscreen-player__video"
+            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" 
+          />
+        </div>
+      )}
+
+      <div className="detail" style={{ display: isPlaying ? 'none' : 'block' }}>
         <Nav />
         
         <div 
@@ -98,7 +113,6 @@ function Detail() {
         </div>
 
         <div className="detail__content">
-          
           <div className="detail__info">
             <div className="detail__back" onClick={() => navigate(-1)}>
                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -110,6 +124,15 @@ function Detail() {
             
             <h1 className="detail__title">{movie.title || movie.name || movie.original_name}</h1>
             
+            <div className="detail__controls">
+              <button className="detail__play-btn" onClick={handlePlayClick}>
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                Play
+              </button>
+            </div>
+
             <div className="detail__meta">
               <span className="detail__rating">★ {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"} Match</span>
               {movie.release_date || movie.first_air_date ? 
@@ -145,19 +168,19 @@ function Detail() {
             )}
 
             <div className="detail__trailer">
-              {trailerUrl && <h3 className="detail__trailer-title">Trailer</h3>}
+              {trailerUrl && <h3 className="detail__trailer-title">Trailer / Clip</h3>}
               {trailerUrl ? (
                 <div className="detail__trailer-video">
                   <YouTube videoId={trailerUrl} opts={opts} />
                 </div>
               ) : (
-                <p style={{color: '#a3a3a3'}}>No trailer available for this title on TMDB.</p>
+                <p style={{color: '#a3a3a3'}}>No video clips available for this title on TMDB.</p>
               )}
             </div>
           </div>
         </div>
       </div>
-      <Footer />
+      {!isPlaying && <Footer />}
     </>
   );
 }
