@@ -43,6 +43,7 @@ function Row({ title, fetchUrl, isLargeRow }) {
                     isLargeRow ? movie.poster_path : movie.backdrop_path
                   }`}
                   alt={movie.name || movie.title}
+                  loading="lazy"
                 />
                 <div className="row__poster-info">
                   <div className="row__poster-title">

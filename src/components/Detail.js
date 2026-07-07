@@ -53,7 +53,7 @@ function Detail() {
   if (!movie) return <div className="detail"><Nav /><div style={{paddingTop: '100px', textAlign: 'center'}}>Loading...</div></div>;
 
   const opts = {
-    height: "450",
+    height: "100%",
     width: "100%",
     playerVars: { autoplay: 0 },
   };
@@ -80,7 +80,7 @@ function Detail() {
         
         <div className="detail__info">
           <div className="detail__back" onClick={() => navigate(-1)}>
-            &larr; Back to Home
+            &larr; Back
           </div>
           
           <h1 className="detail__title">{movie.title || movie.name || movie.original_name}</h1>
@@ -107,9 +107,9 @@ function Detail() {
                 {cast.map(actor => (
                   <div key={actor.id} className="detail__actor">
                     {actor.profile_path ? (
-                      <img src={`${base_url}${actor.profile_path}`} alt={actor.name} />
+                      <img src={`${base_url}${actor.profile_path}`} alt={actor.name} loading="lazy" />
                     ) : (
-                      <div style={{width: '100px', height: '150px', backgroundColor: '#333', borderRadius: '8px', marginBottom: '8px'}} />
+                      <div style={{width: '100%', height: '120px', backgroundColor: '#333', borderRadius: '8px', marginBottom: '8px'}} />
                     )}
                     <div className="detail__actor-name">{actor.name}</div>
                     <div className="detail__actor-char">{actor.character}</div>
@@ -122,7 +122,9 @@ function Detail() {
           <div className="detail__trailer">
             <h3 className="detail__trailer-title">Official Trailer</h3>
             {trailerUrl ? (
-              <YouTube videoId={trailerUrl} opts={opts} />
+              <div className="detail__trailer-video">
+                <YouTube videoId={trailerUrl} opts={opts} />
+              </div>
             ) : (
               <p>No trailer available for this title.</p>
             )}
