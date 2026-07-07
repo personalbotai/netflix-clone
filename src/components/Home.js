@@ -16,6 +16,12 @@ const categories = [
   { id: "comedy", name: "Comedy", url: requests.fetchComedyMovies, isLarge: false },
   { id: "horror", name: "Horror", url: requests.fetchHorrorMovies, isLarge: false },
   { id: "romance", name: "Romance", url: requests.fetchRomanceMovies, isLarge: false },
+  { id: "scifi", name: "Sci-Fi", url: requests.fetchSciFi, isLarge: false },
+  { id: "animation", name: "Animation", url: requests.fetchAnimation, isLarge: false },
+  { id: "mystery", name: "Mystery", url: requests.fetchMystery, isLarge: false },
+  { id: "drama", name: "Drama", url: requests.fetchDrama, isLarge: false },
+  { id: "crime", name: "Crime", url: requests.fetchCrime, isLarge: false },
+  { id: "fantasy", name: "Fantasy", url: requests.fetchFantasy, isLarge: false },
   { id: "documentary", name: "Documentaries", url: requests.fetchDocumentaries, isLarge: false },
 ];
 
@@ -39,14 +45,12 @@ function Home() {
 
   const handleCategoryChange = (categoryId) => {
     setActiveCategory(categoryId);
-    // Smooth scroll sedikit agar banner terlewat dan filter menempel di atas
     window.scrollTo({
       top: window.innerHeight * 0.5,
       behavior: 'smooth'
     });
   };
 
-  // Logika Render Baris berdasarkan Kategori Aktif
   const renderRows = () => {
     if (activeCategory === "all") {
       return (
@@ -54,14 +58,18 @@ function Home() {
           {myList.length > 0 && (
             <LocalRow title="My List" movies={myList} isLargeRow={false} />
           )}
-          <Row title="ORIGINALS" fetchUrl={requests.fetchNetflixOriginals} isLargeRow />
-          <Row title="Trending Now" fetchUrl={requests.fetchTrending} />
-          <Row title="Top Rated" fetchUrl={requests.fetchTopRated} />
-          <Row title="Action Movies" fetchUrl={requests.fetchActionMovies} />
-          <Row title="Comedy Movies" fetchUrl={requests.fetchComedyMovies} />
-          <Row title="Horror Movies" fetchUrl={requests.fetchHorrorMovies} />
-          <Row title="Romance Movies" fetchUrl={requests.fetchRomanceMovies} />
-          <Row title="Documentaries" fetchUrl={requests.fetchDocumentaries} />
+          {/* Skip All and Documentary for rendering loop, or render all manually. We'll render all map dynamically except 'all' */}
+          {categories.map((cat) => {
+             if (cat.id === "all") return null;
+             return (
+               <Row 
+                 key={cat.id} 
+                 title={cat.name === "Originals" ? "ORIGINALS" : cat.name} 
+                 fetchUrl={cat.url} 
+                 isLargeRow={cat.isLarge} 
+               />
+             )
+          })}
         </>
       );
     }
@@ -71,7 +79,7 @@ function Home() {
     return (
       <div style={{ paddingTop: '20px', minHeight: '60vh' }}>
         <Row 
-          key={selectedCategory.id} // Kunci re-render
+          key={selectedCategory.id}
           title={`Top ${selectedCategory.name}`} 
           fetchUrl={selectedCategory.url} 
           isLargeRow={selectedCategory.isLarge} 
